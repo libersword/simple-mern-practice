@@ -1,23 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const PORT = process.env.PORT || 5000;
-const db = require('./config/keys').mongoURI;
-const items = require('./routes/api/items');
 const path = require('path');
 const app = express();
+const config = require('config');
 
 // Define middleware here
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 
+const db = config.get('mongoURI');
 mongoose
 .connect(db, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
 .then(()=>
 console.log('MongoDB Connected...')
 ).catch(err => console.log(err));
 
-app.use('/', items);
+app.use('/', require('./routes/api/items'));
+app.use('/api/users', require('./routes/api/users'));
+app.use('/api/auth', require('./routes/api/auth'));
 
 //Serve static assets if in prodution
 if(process.env.NODE_ENV === 'production') {
