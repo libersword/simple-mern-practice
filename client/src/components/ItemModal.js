@@ -12,14 +12,23 @@ import {
 import { connect } from 'react-redux';
 import { addItem } from '../actions/itemActions';
 import PropTypes from 'prop-types';
+import { loadUser } from '../actions/authActions';
+import store from '../store';
 
 class ItemModal extends Component {
+  componentDidMount() {
+    this.setState({
+      user: store.dispatch(loadUser())
+    })
+  }
+  
   state = {
     modal: false,
     name: ''
   }
   static propTypes = {
-    isAuthenticated: PropTypes.bool
+    isAuthenticated: PropTypes.bool,
+    user: PropTypes.object.isRequired
   }
 
   toggle = () => {
@@ -36,10 +45,11 @@ class ItemModal extends Component {
 
   onSubmit = (e) => {
     e.preventDefault();
-
     const newItem = {
+      user: this.props.user._id,
       name: this.state.name
     }
+
     //Add item via Add Item Action
     this.props.addItem(newItem);
 
@@ -64,7 +74,7 @@ class ItemModal extends Component {
         > 
           <ModalHeader 
           toggle = {this.toggle}
-          >Add to Shopping List</ModalHeader>
+          >Add Item</ModalHeader>
         <ModalBody>
           <Form
           onSubmit={this.onSubmit}
@@ -77,7 +87,7 @@ class ItemModal extends Component {
               type="text"
               name="name"
               id = "item"
-              placeholder = "Add shopping item"
+              placeholder = "Add item"
               onChange = {this.onChange}
               />
               <Button 
@@ -95,6 +105,7 @@ class ItemModal extends Component {
 }
 
 const mapStateToProps = (state) => ({
+  user: state.auth.user,
   item: state.item,
   isAuthenticated: state.auth.isAuthenticated
 });
